@@ -20,8 +20,8 @@ from bs4 import BeautifulSoup
 
 class UdvashDownloader:
     def __init__(self, user_id, password, max_parallel_downloads=3, download_dir="downloads", 
-                download_archive=True, download_marathon=True, download_bangla=True,
-                download_english=True, create_json=True):
+                 download_archive=True, download_marathon=True, download_bangla=True,
+                 download_english=True, create_json=True):
         # Setup logging
         self.setup_logger()
         
@@ -136,81 +136,81 @@ class UdvashDownloader:
             self.logger.warning(f"Timeout waiting for elements: {css_selector}")
             return []
     
-	def get_subjects(self, course_type_id=2, master_course_id=11):
-	    """Get all subject links and names"""
-	    self.logger.info("Getting subjects...")
-	    self.driver.get(f"https://online.udvash-unmesh.com/Content/ContentSubject?CourseTypeId={course_type_id}&masterCourseId={master_course_id}&ln=En")
-	    
-	    subjects = []
-	    subject_elements = self.wait_for_elements("div.col-xl-4.col-lg-6.d-flex a")
-	    
-	    for idx, element in enumerate(subject_elements, 1):
-	        try:
-	            href = element.get_attribute("href")
-	            name_elem = element.find_element(By.CSS_SELECTOR, "h3")
-	            name = name_elem.text.strip()
-	            
-	            # Extract subject ID from href
-	            url_parts = urlparse(href)
-	            query_params = parse_qs(url_parts.query)
-	            subject_id = query_params.get('subjectId', [''])[0]
-	            
-	            # Use a single letter as subject prefix based on index
-	            subject_prefix = chr(64 + idx)  # A = 65 in ASCII, so 1 -> A, 2 -> B, etc.
-	            
-	            subjects.append({
-	                'index': idx,
-	                'name': name,
-	                'url': href,
-	                'id': subject_id,
-	                'prefix': subject_prefix
-	            })
-	            self.logger.info(f"Found subject {idx}: {name} (ID: {subject_id}, Prefix: {subject_prefix})")
-	        except Exception as e:
-	            self.logger.error(f"Error processing subject element: {str(e)}")
-	    
-	    return subjects
-	    
-	def get_chapters(self, subject_url, subject_name, subject_prefix):
-	    """Get all chapter links and names for a subject"""
-	    self.logger.info(f"Getting chapters for subject: {subject_name}")
-	    try:
-	        self.driver.get(subject_url)
-	        
-	        chapters = []
-	        chapter_elements = self.wait_for_elements("div.col-xl-4.col-lg-6.d-flex a")
-	        
-	        for idx, element in enumerate(chapter_elements, 1):
-	            try:
-	                href = element.get_attribute("href")
-	                name_elem = element.find_element(By.CSS_SELECTOR, "h3")
-	                chapter_name = name_elem.text.strip()
-	                
-	                # Extract chapter ID from href
-	                url_parts = urlparse(href)
-	                query_params = parse_qs(url_parts.query)
-	                chapter_id = query_params.get('masterChapterId', [''])[0]
-	                
-	                # Use consistent index format: SubjectPrefix.ChapterNumber (e.g., A.1, B.3)
-	                formatted_index = f"{subject_prefix}.{idx}"
-	                
-	                chapters.append({
-	                    'index': formatted_index,
-	                    'name': chapter_name,
-	                    'url': href,
-	                    'id': chapter_id,
-	                    'subject_name': subject_name,
-	                    'subject_prefix': subject_prefix,
-	                    'chapter_number': idx  # Store the chapter number separately for easy filtering
-	                })
-	                self.logger.info(f"Found chapter {formatted_index}: {chapter_name} (ID: {chapter_id})")
-	            except Exception as e:
-	                self.logger.error(f"Error processing chapter element: {str(e)}")
-	        
-	        return chapters
-	    except Exception as e:
-	        self.logger.error(f"Error getting chapters: {str(e)}")
-	        return []
+    def get_subjects(self, course_type_id=2, master_course_id=11):
+        """Get all subject links and names"""
+        self.logger.info("Getting subjects...")
+        self.driver.get(f"https://online.udvash-unmesh.com/Content/ContentSubject?CourseTypeId={course_type_id}&masterCourseId={master_course_id}&ln=En")
+        
+        subjects = []
+        subject_elements = self.wait_for_elements("div.col-xl-4.col-lg-6.d-flex a")
+        
+        for idx, element in enumerate(subject_elements, 1):
+            try:
+                href = element.get_attribute("href")
+                name_elem = element.find_element(By.CSS_SELECTOR, "h3")
+                name = name_elem.text.strip()
+                
+                # Extract subject ID from href
+                url_parts = urlparse(href)
+                query_params = parse_qs(url_parts.query)
+                subject_id = query_params.get('subjectId', [''])[0]
+                
+                # Use a single letter as subject prefix based on index
+                subject_prefix = chr(64 + idx)  # A = 65 in ASCII, so 1 -> A, 2 -> B, etc.
+                
+                subjects.append({
+                    'index': idx,
+                    'name': name,
+                    'url': href,
+                    'id': subject_id,
+                    'prefix': subject_prefix
+                })
+                self.logger.info(f"Found subject {idx}: {name} (ID: {subject_id}, Prefix: {subject_prefix})")
+            except Exception as e:
+                self.logger.error(f"Error processing subject element: {str(e)}")
+        
+        return subjects
+    
+    def get_chapters(self, subject_url, subject_name, subject_prefix):
+        """Get all chapter links and names for a subject"""
+        self.logger.info(f"Getting chapters for subject: {subject_name}")
+        try:
+            self.driver.get(subject_url)
+            
+            chapters = []
+            chapter_elements = self.wait_for_elements("div.col-xl-4.col-lg-6.d-flex a")
+            
+            for idx, element in enumerate(chapter_elements, 1):
+                try:
+                    href = element.get_attribute("href")
+                    name_elem = element.find_element(By.CSS_SELECTOR, "h3")
+                    chapter_name = name_elem.text.strip()
+                    
+                    # Extract chapter ID from href
+                    url_parts = urlparse(href)
+                    query_params = parse_qs(url_parts.query)
+                    chapter_id = query_params.get('masterChapterId', [''])[0]
+                    
+                    # Use consistent index format: SubjectPrefix.ChapterNumber (e.g., A.1, B.3)
+                    formatted_index = f"{subject_prefix}.{idx}"
+                    
+                    chapters.append({
+                        'index': formatted_index,
+                        'name': chapter_name,
+                        'url': href,
+                        'id': chapter_id,
+                        'subject_name': subject_name,
+                        'subject_prefix': subject_prefix,
+                        'chapter_number': idx  # Store the chapter number separately for easy filtering
+                    })
+                    self.logger.info(f"Found chapter {formatted_index}: {chapter_name} (ID: {chapter_id})")
+                except Exception as e:
+                    self.logger.error(f"Error processing chapter element: {str(e)}")
+            
+            return chapters
+        except Exception as e:
+            self.logger.error(f"Error getting chapters: {str(e)}")
+            return []
     
     def get_content_types(self, chapter_url, chapter_name):
         """Get content types (marathon, archive, etc.) for a chapter"""
@@ -362,11 +362,11 @@ class UdvashDownloader:
             video_src_match = re.search(r'<source src="([^"]+)" type="video/mp4">', page_source)
             
             if video_src_match:
-                # Get the raw URL and decode HTML entities like &amp;
+                # Get the raw URL and decode HTML entities like &
                 raw_video_url = video_src_match.group(1)
                 
                 # Replace HTML entities with proper characters
-                video_url = raw_video_url.replace("&amp;", "&")
+                video_url = raw_video_url.replace("&", "&")
                 
                 self.logger.info(f"Found video URL: {video_url[:100]}...")
                 return video_url
@@ -389,7 +389,7 @@ class UdvashDownloader:
             raw_pdf_url = pdf_link_elem.get_attribute("href")
             
             # Replace HTML entities (just in case)
-            pdf_url = raw_pdf_url.replace("&amp;", "&") if raw_pdf_url else None
+            pdf_url = raw_pdf_url.replace("&", "&") if raw_pdf_url else None
             
             if pdf_url:
                 self.logger.info(f"Found PDF URL: {pdf_url[:100]}...")
@@ -453,7 +453,7 @@ class UdvashDownloader:
                 executor.submit(self.download_file, url, file_path, file_type)
         else:
             self.download_queue.append((url, file_path, file_type))
-            self.logger.info(f"Queued {file_type} download: {os.path.basename(file_path)}")
+            self.logger.info(f"Queued {file_type}多元download: {os.path.basename(file_path)}")
     
     def process_download_queue(self):
         """Process any queued downloads if under the limit"""
@@ -638,123 +638,123 @@ class UdvashDownloader:
         except Exception as e:
             self.logger.error(f"Error processing chapter {chapter['name']}: {str(e)}")
     
-	def download_all(self, from_chapter=None, to_chapter=None, specific_subjects=None):
-	    """Download all content or specific chapter range"""
-	    try:
-	        # Get all subjects
-	        subjects = self.get_subjects()
-	        
-	        if not subjects:
-	            self.logger.error("No subjects found!")
-	            return
-	        
-	        # Filter subjects if specific ones are requested
-	        if specific_subjects:
-	            subjects = [s for s in subjects if s['name'] in specific_subjects]
-	            self.logger.info(f"Filtered to {len(subjects)} specific subjects")
-	        
-	        all_chapters = []
-	        
-	        # Get chapters for each subject
-	        for subject in subjects:
-	            chapters = self.get_chapters(subject['url'], subject['name'], subject['prefix'])
-	            for chapter in chapters:
-	                all_chapters.append(chapter)
-	        
-	        # Filter chapters based on from_chapter and to_chapter parameters
-	        chapters_to_process = []
-	        
-	        if from_chapter is not None or to_chapter is not None:
-	            # Parse from_chapter and to_chapter
-	            from_subject_prefix = None
-	            from_chapter_number = None
-	            to_subject_prefix = None
-	            to_chapter_number = None
-	            
-	            if from_chapter is not None:
-	                # Check if it's a composite format like "B.3" or just a number
-	                if isinstance(from_chapter, str) and '.' in from_chapter:
-	                    parts = from_chapter.split('.')
-	                    from_subject_prefix = parts[0].upper()
-	                    from_chapter_number = int(parts[1]) if len(parts) > 1 else 1
-	                else:
-	                    # If it's just a number, interpret based on subject order
-	                    from_chapter = int(from_chapter)
-	                    for s in subjects:
-	                        chapters = self.get_chapters(s['url'], s['name'], s['prefix'])
-	                        if from_chapter <= len(chapters):
-	                            from_subject_prefix = s['prefix']
-	                            from_chapter_number = from_chapter
-	                            break
-	                        from_chapter -= len(chapters)
-	            
-	            if to_chapter is not None:
-	                # Check if it's a composite format like "B.3" or just a number
-	                if isinstance(to_chapter, str) and '.' in to_chapter:
-	                    parts = to_chapter.split('.')
-	                    to_subject_prefix = parts[0].upper()
-	                    to_chapter_number = int(parts[1]) if len(parts) > 1 else 1
-	                else:
-	                    # If it's just a number, interpret based on subject order
-	                    to_chapter = int(to_chapter)
-	                    found = False
-	                    for s in subjects:
-	                        chapters = self.get_chapters(s['url'], s['name'], s['prefix'])
-	                        if to_chapter <= len(chapters):
-	                            to_subject_prefix = s['prefix']
-	                            to_chapter_number = to_chapter
-	                            found = True
-	                            break
-	                        to_chapter -= len(chapters)
-	                    
-	                    if not found:
-	                        # If we couldn't find the chapter, use the last chapter of the last subject
-	                        to_subject_prefix = subjects[-1]['prefix']
-	                        to_chapter_number = len(self.get_chapters(subjects[-1]['url'], subjects[-1]['name'], subjects[-1]['prefix']))
-	            
-	            # Use the calculated values to filter chapters
-	            started = from_subject_prefix is None
-	            for chapter in all_chapters:
-	                subject_prefix = chapter['subject_prefix']
-	                chapter_number = chapter['chapter_number']
-	                
-	                # If we haven't started and this is our start point
-	                if not started and subject_prefix == from_subject_prefix and chapter_number >= from_chapter_number:
-	                    started = True
-	                
-	                # Add chapter if we've started
-	                if started:
-	                    chapters_to_process.append(chapter)
-	                
-	                # Stop if we've reached our end point
-	                if to_subject_prefix is not None and subject_prefix == to_subject_prefix and chapter_number >= to_chapter_number:
-	                    break
-	        else:
-	            chapters_to_process = all_chapters
-	        
-	        self.logger.info(f"Processing {len(chapters_to_process)} chapters")
-	        
-	        # Debug information
-	        for ch in chapters_to_process:
-	            self.logger.info(f"Will process: {ch['index']} - {ch['name']}")
-	        
-	        # Process each chapter in a new thread to enable concurrent processing
-	        with ThreadPoolExecutor(max_workers=1) as executor:
-	            for chapter in chapters_to_process:
-	                executor.submit(self.process_chapter, chapter)
-	                # Small delay to allow the download queue to start processing
-	                time.sleep(0.5)
-	        
-	        # Wait for all downloads to complete
-	        self.wait_for_downloads_to_complete()
-	        
-	        # Save final topic structure
-	        self.save_topic_structure()
-	        
-	    except Exception as e:
-	        self.logger.error(f"Error in download_all: {str(e)}")
-	    finally:
-	        self.cleanup()
+    def download_all(self, from_chapter=None, to_chapter=None, specific_subjects=None):
+        """Download all content or specific chapter range"""
+        try:
+            # Get all subjects
+            subjects = self.get_subjects()
+            
+            if not subjects:
+                self.logger.error("No subjects found!")
+                return
+            
+            # Filter subjects if specific ones are requested
+            if specific_subjects:
+                subjects = [s for s in subjects if s['name'] in specific_subjects]
+                self.logger.info(f"Filtered to {len(subjects)} specific subjects")
+            
+            all_chapters = []
+            
+            # Get chapters for each subject
+            for subject in subjects:
+                chapters = self.get_chapters(subject['url'], subject['name'], subject['prefix'])
+                for chapter in chapters:
+                    all_chapters.append(chapter)
+            
+            # Filter chapters based on from_chapter and to_chapter parameters
+            chapters_to_process = []
+            
+            if from_chapter is not None or to_chapter is not None:
+                # Parse from_chapter and to_chapter
+                from_subject_prefix = None
+                from_chapter_number = None
+                to_subject_prefix = None
+                to_chapter_number = None
+                
+                if from_chapter is not None:
+                    # Check if it's a composite format like "B.3" or just a number
+                    if isinstance(from_chapter, str) and '.' in from_chapter:
+                        parts = from_chapter.split('.')
+                        from_subject_prefix = parts[0].upper()
+                        from_chapter_number = int(parts[1]) if len(parts) > 1 else 1
+                    else:
+                        # If it's just a number, interpret based on subject order
+                        from_chapter = int(from_chapter)
+                        for s in subjects:
+                            chapters = self.get_chapters(s['url'], s['name'], s['prefix'])
+                            if from_chapter <= len(chapters):
+                                from_subject_prefix = s['prefix']
+                                from_chapter_number = from_chapter
+                                break
+                            from_chapter -= len(chapters)
+                
+                if to_chapter is not None:
+                    # Check if it's a composite format like "B.3" or just a number
+                    if isinstance(to_chapter, str) and '.' in to_chapter:
+                        parts = to_chapter.split('.')
+                        to_subject_prefix = parts[0].upper()
+                        to_chapter_number = int(parts[1]) if len(parts) > 1 else 1
+                    else:
+                        # If it's just a number, interpret based on subject order
+                        to_chapter = int(to_chapter)
+                        found = False
+                        for s in subjects:
+                            chapters = self.get_chapters(s['url'], s['name'], s['prefix'])
+                            if to_chapter <= len(chapters):
+                                to_subject_prefix = s['prefix']
+                                to_chapter_number = to_chapter
+                                found = True
+                                break
+                            to_chapter -= len(chapters)
+                            
+                        if not found:
+                            # If we couldn't find the chapter, use the last chapter of the last subject
+                            to_subject_prefix = subjects[-1]['prefix']
+                            to_chapter_numberIt = len(self.get_chapters(subjects[-1]['url'], subjects[-1]['name'], subjects[-1]['prefix']))
+                
+                # Use the calculated values to filter chapters
+                started = from_subject_prefix is None
+                for chapter in all_chapters:
+                    subject_prefix = chapter['subject_prefix']
+                    chapter_number = chapter['chapter_number']
+                    
+                    # If we haven't started and this is our start point
+                    if not started and subject_prefix == from_subject_prefix and chapter_number >= from_chapter_number:
+                        started = True
+                    
+                    # Add chapter if we've started
+                    if started:
+                        chapters_to_process.append(chapter)
+                    
+                    # Stop if we've reached our end point
+                    if to_subject_prefix is not None and subject_prefix == to_subject_prefix and chapter_number >= to_chapter_number:
+                        break
+            else:
+                chapters_to_process = all_chapters
+            
+            self.logger.info(f"Processing {len(chapters_to_process)} chapters")
+            
+            # Debug information
+            for ch in chapters_to_process:
+                self.logger.info(f"Will process: {ch['index']} - {ch['name']}")
+            
+            # Process each chapter in a new thread to enable concurrent processing
+            with ThreadPoolExecutor(max_workers=1) as executor:
+                for chapter in chapters_to_process:
+                    executor.submit(self.process_chapter, chapter)
+                    # Small delay to allow the download queue to start processing
+                    time.sleep(0.5)
+            
+            # Wait for all downloads to complete
+            self.wait_for_downloads_to_complete()
+            
+            # Save final topic structure
+            self.save_topic_structure()
+            
+        except Exception as e:
+            self.logger.error(f"Error in download_all: {str(e)}")
+        finally:
+            self.cleanup()
     
     def cleanup(self):
         """Clean up resources"""
